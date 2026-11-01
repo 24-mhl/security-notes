@@ -34,6 +34,18 @@ Wireshark 侧：打开后 `Capture → Interfaces` 里网卡右侧要有小波�
 - Wireshark **不在** `C:\Program Files`，实际装在 `D:\实验室\Wireshark`。开始菜单快捷方式是对的，别去 C 盘翻。
 - 查找框"回车没反应"通常是焦点问题：先点一下页面空白处，或直接滚到页面最顶端肉眼找。
 - `git clone` 若中途被打断，会留下一个只有 `.git` 的坏目录（`fatal: your current branch appears to be broken`），删掉重新 clone 最省事。
+- **中文用户名 + Git Bash 自带 ssh = `Permission denied (publickey)`。** 现象：`git push` 明明配好了密钥还是被拒；单独跑 `ssh -T git@github.com` 也报同样错。原因：Git 自带的 ssh 读不到 `C:\Users\中文名\.ssh` 下的 config 和密钥（路径编码问题），只能空手认证。而系统自带的 OpenSSH 正常——同样的命令换成它立刻返回 `Hi 24-mhl!`：
+
+  ```bash
+  # 验证（注意要用系统 OpenSSH 的完整路径）：
+  "C:/Windows/System32/OpenSSH/ssh.exe" -T git@github.com
+  # ✅ Hi 24-mhl! You've successfully authenticated...
+
+  # 解决：让 git 永远用系统 OpenSSH（只配一次）：
+  git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"
+  ```
+
+  配套的 `~/.ssh/config` 里把 GitHub 指到 443 端口（`HostName ssh.github.com` + `Port 443`），绕开校园网封 22 端口导致的超时。这两条配完，push 再没卡过。
 
 ## 五、明天的动作
 
